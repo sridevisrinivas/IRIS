@@ -299,7 +299,7 @@ public class HTTPHypermediaRIM implements HTTPResourceInteractionModel {
     }    
 
     private Response handleRequest(@Context HttpHeaders headers, @Context UriInfo uriInfo, Event event,
-            EntityResource<?> resource) {
+            RESTResource resource) {
         long begin = System.nanoTime();
         // determine action
         InteractionCommand action = hypermediaEngine.determineAction(event, getFQResourcePath());
@@ -334,13 +334,13 @@ public class HTTPHypermediaRIM implements HTTPResourceInteractionModel {
     }
     
     protected Response handleRequest(@Context HttpHeaders headers, InteractionContext ctx, Event event,
-            InteractionCommand action, EntityResource<?> resource, ResourceRequestConfig config) {
+            InteractionCommand action, RESTResource resource, ResourceRequestConfig config) {
         return handleRequest(headers, ctx, event, action, resource, config, false);
     }
 
 
     protected Response handleRequest(@Context HttpHeaders headers, InteractionContext ctx, Event event,
-            InteractionCommand action, EntityResource<?> resource, ResourceRequestConfig config, boolean ignoreAutoTransitions) {
+            InteractionCommand action, RESTResource resource, ResourceRequestConfig config, boolean ignoreAutoTransitions) {
         assert (event != null);
         StatusType status = Status.NOT_FOUND;
 
@@ -420,7 +420,7 @@ public class HTTPHypermediaRIM implements HTTPResourceInteractionModel {
     }
 
     private ResourceState initialiseInteractionContext(HttpHeaders headers, Event event, InteractionContext ctx,
-            EntityResource<?> resource) {
+            RESTResource resource) {
         // set the resource for the commands to access
         if (resource != null) {
             ctx.setResource(resource);
@@ -561,9 +561,16 @@ public class HTTPHypermediaRIM implements HTTPResourceInteractionModel {
                             }
                         } else if (targetState.isPseudoState()
                                 || targetState.getPath().equals(ctx.getCurrentState().getPath())) {
-                            // did we delete ourselves or pseudo final state, both
-                            // are transitions to No Content
-                            status = Response.Status.NO_CONTENT;
+                            /*
+                             * did we delete ourselves or pseudo final state, both
+                             * are transitions to No Content
+                             */
+    
+                            if (currentState.getTransitions().isEmpty() && ctx.getResource() == null) {
+                                status = Status.NO_CONTENT;
+                            } else {
+                                status = Status.OK;
+                            }
                         } else {
                             throw new IllegalArgumentException("Resource interaction exception, should not be "
                                     + "possible to use a link where target state is not our current state");
@@ -882,7 +889,7 @@ public class HTTPHypermediaRIM implements HTTPResourceInteractionModel {
             InteractionCommand action = hypermediaEngine.buildWorkflow(event, targetState.getActions());
 
             InteractionContext newCtx = new InteractionContext(ctx, headers, newPathParameters, newQueryParameters, targetState);
-            Response response = handleRequest(headers, newCtx, event, action, (EntityResource<?>) ctx.getResource(), config, true);
+            Response response = handleRequest(headers, newCtx, event, action,  ctx.getResource(), config, true);
             
             //forward any parameters set by the executed InteractionCommand to the InteractionContext
             ctx.getQueryParameters().putAll(newCtx.getQueryParameters());
@@ -945,7 +952,7 @@ public class HTTPHypermediaRIM implements HTTPResourceInteractionModel {
             // sometime some resource throw ClassCastException
             return ((EntityResource<?>) currentResource).getEntity();
         } catch (ClassCastException e) {
-            LOGGER.error("Failed to get entity resource", e);
+            LOGGER.warn("Failed to get entity resource", e);
         }
 
         EntityResource<?> er = new EntityResource<RESTResource>(currentResource);

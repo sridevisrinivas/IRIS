@@ -4,7 +4,7 @@
 
 	<groupId>com.temenos.interaction</groupId>
 	<artifactId>useragent-examples</artifactId>
-	<version>0.13.14</version>
+	<version>0.13.15</version>
 	<packaging>pom</packaging>
 
 	<modules>

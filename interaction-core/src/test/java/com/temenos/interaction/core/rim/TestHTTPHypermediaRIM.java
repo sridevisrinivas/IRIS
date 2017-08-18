@@ -342,6 +342,47 @@ public class TestHTTPHypermediaRIM {
         rim.get(mock(HttpHeaders.class), "id", uriInfo);
     }
 
+    /* We decode the query parameters to workaround an issue in Wink */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testDecodeQueryParametersPercentValue() throws InteractionException {
+        ResourceState initialState = new ResourceState("entity", "state", mockActions(), "/test");
+        // this test simply mocks a command to test the context query parameters
+        // is initialised properly
+        InteractionCommand mockCommand = mock(InteractionCommand.class);
+        when(mockCommand.execute(any(InteractionContext.class))).thenReturn(Result.FAILURE);
+        // RIM with command controller that issues commands that always return
+        // SUCCESS
+
+        HTTPHypermediaRIM rim = new HTTPHypermediaRIM(mockCommandController(mockCommand),
+                new ResourceStateMachine(initialState), createMockMetadata());
+
+        UriInfo uriInfo = mock(UriInfo.class);
+        when(uriInfo.getPathParameters(anyBoolean())).thenReturn(mock(MultivaluedMap.class));
+        MultivaluedMap<String, String> queryMap = new MultivaluedMapImpl<String>();
+        queryMap.add("%24filter", "123");
+        queryMap.add("%24top", "1");
+
+        when(uriInfo.getQueryParameters(anyBoolean())).thenReturn(queryMap);
+
+        rim.get(mock(HttpHeaders.class), "%24id", uriInfo);
+        verify(mockCommand).execute((InteractionContext) argThat(new InteractionContextQueryParamMatcherPercent()));
+    }
+
+    class InteractionContextQueryParamMatcherPercent extends ArgumentMatcher<InteractionContext> {
+        public boolean matches(Object o) {
+            if (o instanceof InteractionContext) {
+                InteractionContext ctx = (InteractionContext) o;
+                MultivaluedMap<String, String> mvmap = ctx.getQueryParameters();
+                if (!(mvmap.getFirst("$filter").equals("123") && mvmap.getFirst("$top").equals("1"))) {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+    }
+    
     /*
      * This test is for a GET request where the command succeeds, but does not
      * return a resource. A successful GET command should set the requested

@@ -156,4 +156,9 @@ public class DynamicResourceDelegate implements HTTPResourceInteractionModel, Dy
 	public Collection<ResourceInteractionModel> getChildren() {
 		return resource.getChildren();
 	}    
+	
+	@Override
+    public Response delete(HttpHeaders headers, String id, UriInfo uriInfo, EntityResource<?> eresource) {
+        return resource.delete(headers, id, new UriInfoImpl(uriInfo), eresource);
+    }
 }

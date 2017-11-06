@@ -39,6 +39,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.wink.common.model.multipart.InMultiPart;
 
 import com.temenos.interaction.core.ExtendedMediaTypes;
+import com.temenos.interaction.core.media.hal.HALMediaType;
 import com.temenos.interaction.core.resource.EntityResource;
 
 public interface HTTPResourceInteractionModel extends ResourceInteractionModel {
@@ -117,5 +118,27 @@ public interface HTTPResourceInteractionModel extends ResourceInteractionModel {
 	 * DELETE a resource.
 	 */
 	@DELETE
+	@Produces({
+        MediaType.APPLICATION_ATOM_XML,
+        MediaType.APPLICATION_XML, 
+        MediaType.APPLICATION_JSON, 
+        MediaType.WILDCARD})
 	public Response delete(@Context HttpHeaders headers, @PathParam("id") String id, @Context UriInfo uriInfo);
+	
+	/**
+     * DELETE a resource by sending entity back.
+     */
+    @DELETE
+    @Consumes({
+        MediaType.APPLICATION_ATOM_XML,
+        MediaType.APPLICATION_XML, 
+        MediaType.APPLICATION_JSON, 
+        HALMediaType.APPLICATION_HAL_JSON,
+        HALMediaType.APPLICATION_HAL_XML})
+    @Produces({
+        MediaType.APPLICATION_ATOM_XML,
+        MediaType.APPLICATION_XML, 
+        MediaType.APPLICATION_JSON, 
+        MediaType.WILDCARD})
+    public Response delete(@Context HttpHeaders headers, @PathParam("id") String id, @Context UriInfo uriInfo, EntityResource<?> resource);
 }

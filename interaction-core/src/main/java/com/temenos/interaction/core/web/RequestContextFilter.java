@@ -51,6 +51,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -66,7 +67,9 @@ public class RequestContextFilter implements Filter {
 
         long requestTime = System.currentTimeMillis();
         final HttpServletRequest servletRequest = (HttpServletRequest) request;
-
+        final HttpServletResponse servletResponse = (HttpServletResponse) response;
+        servletResponse.setHeader("Server", "SecureServer");
+        servletResponse.setHeader("X-Frame-Options", "SAMEORIGIN");
         String requestURI = servletRequest.getRequestURI();
         requestURI = StringUtils.removeStart(requestURI, servletRequest.getContextPath() + servletRequest.getServletPath());
         String baseURL = StringUtils.removeEnd(servletRequest.getRequestURL().toString(), requestURI);
@@ -92,7 +95,6 @@ public class RequestContextFilter implements Filter {
             reqCtxBuilder.setUserPrincipal(userPrincipal);
         }
         RequestContext.setRequestContext(reqCtxBuilder.build());
-        
         try {
             chain.doFilter(request, response);
         } finally {

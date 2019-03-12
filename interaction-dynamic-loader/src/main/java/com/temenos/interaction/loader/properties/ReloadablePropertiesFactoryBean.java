@@ -38,6 +38,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
@@ -72,6 +74,8 @@ public class ReloadablePropertiesFactoryBean extends PropertiesFactoryBean imple
 	private XmlModificationNotifier xmlNotifier;
 	private String changeIndexLocations;
 
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ReloadablePropertiesFactoryBean.class);
 	public void setListeners(List<ReloadablePropertiesListener<Resource>> listeners) {
 	    preListeners.addAll(listeners);
 	}
@@ -204,6 +208,15 @@ public class ReloadablePropertiesFactoryBean extends PropertiesFactoryBean imple
                          * Empty the file
                          */
                         fc.truncate(0);
+					}catch (Exception exc) {
+                        LOGGER.error("Error.", exc);
+					} finally {
+                        if (fcLock != null) {
+                            fcLock.close();
+                        }
+                        if (fc != null) {
+                            fc.close();
+                        }
                     }
                 }
             }

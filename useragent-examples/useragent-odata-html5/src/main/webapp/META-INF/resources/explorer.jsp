@@ -27,7 +27,7 @@
     <link href="Styles/Site.css" rel="stylesheet" type="text/css" />
     <link type="text/css" rel="Stylesheet" href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.10/themes/redmond/jquery-ui.css" /> 
 
-	<script type="text/javascript" src="Scripts/jquery-1.8.2.js"></script>
+	<script type="text/javascript" src="Scripts/jquery-3.3.1.js"></script>
 	<script type="text/javascript" src="Scripts/jquery-ui.js"></script>
 	<script type="text/javascript" src="Scripts/underscore-1.4.3-min.js"></script>
     <script type="text/javascript" src="Scripts/datajs-1.1.0-iris.js"></script>

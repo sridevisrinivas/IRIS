@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -85,7 +84,7 @@ public class SolrSearchCommand extends AbstractSolrCommand implements Interactio
 	@Override
 	public Result execute(InteractionContext ctx) throws InteractionException {
 		try {
-			URL coreURL = new URL(solrRootURL + "/" +  getCompanyId(ctx) + "_" + getCoreName(ctx));
+			URL coreURL = new URL(solrRootURL + "/" +  getCoreName(ctx));
 			// URL coreURL = new URL(solrRootURL + "/" + coreName);
 			logger.info("Connecting to external Solr server " + coreURL + ".");
 			return execute(ctx, new HttpSolrServer(coreURL.toString()));
@@ -141,12 +140,16 @@ public class SolrSearchCommand extends AbstractSolrCommand implements Interactio
 		}
 	}
 
-	private String getCoreName(InteractionContext ctx) throws InteractionException {
-		if (ctx.getQueryParameters().containsKey(SolrConstants.SOLR_CORE_KEY)) {
-			return ctx.getQueryParameters().getFirst(SolrConstants.SOLR_CORE_KEY);
-		}
-		return getEntityName(ctx);
-	}
+    private String getCoreName(InteractionContext ctx) throws InteractionException {
+        String companyName = getCompanyId(ctx);
+        if (ctx.getQueryParameters().containsKey(SolrConstants.SOLR_CORE_KEY)) {
+            return ctx.getQueryParameters().getFirst(SolrConstants.SOLR_CORE_KEY);
+        }
+        if ((companyName != null) && (!companyName.isEmpty())) {
+            return companyName + "_" + getEntityName(ctx);
+        }
+        return getEntityName(ctx);
+    }
 
 	private String getCompanyId(InteractionContext ctx) throws InteractionException {
 		String companyName = ctx.getPathParameters().getFirst("companyid");

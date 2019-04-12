@@ -61,7 +61,7 @@ public abstract class AbstractSolrCommand {
                     isCustomer = true;
                 } else if (propName.equals("AccountNumber")) {
                     isAccount = true;
-                } else if (propName.equals("Id1")) {
+                } else if (propName.equals("CurrNo")) {
                     isDeAddress = true;
                 }
 			}

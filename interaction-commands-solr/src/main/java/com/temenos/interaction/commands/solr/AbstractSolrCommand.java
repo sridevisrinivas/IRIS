@@ -50,32 +50,11 @@ public abstract class AbstractSolrCommand {
 		long numFound = docs.getNumFound();
 		for (int i = 0; i < MAX_ENTITIES_RETURNED && i < numFound; i++) {
 			EntityProperties properties = new EntityProperties();
-			boolean isCustomer = false;
-            boolean isAccount = false;
-            boolean isDeAddress = false;
 			SolrDocument doc = docs.get(i);
 			Collection<String> fields = doc.getFieldNames();
 			for (String propName : fields) {
 			    properties.setProperty(new EntityProperty(propName, doc.getFirstValue(propName)));
-			    if (propName.equals("ShortName")) {
-                    isCustomer = true;
-                } else if (propName.equals("AccountNumber")) {
-                    isAccount = true;
-                } else if (propName.equals("CurrNo")) {
-                    isDeAddress = true;
-                }
 			}
-			
-			if (isCustomer) {
-                properties.setProperty(new EntityProperty("Type", "CUSTOMER"));
-            }
-            if (isAccount) {
-                properties.setProperty(new EntityProperty("Type", "ACCOUNT"));
-            }
-            if (isDeAddress) {
-                properties.setProperty(new EntityProperty("Type", "DE.ADDRESS"));
-            }
-            
 			// Give some control to user if they have something in mind
 			customizeEntityProperties(doc, properties);
 			

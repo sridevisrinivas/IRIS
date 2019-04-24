@@ -318,12 +318,12 @@ public class SolrSearchCommand extends AbstractSolrCommand implements Interactio
 
 					case LT:
 						// fq comparisons uses 'inclusive' [x TO y] syntax. To get an 'exclusive' lt use 'not gt'.
-						query.addFilterQuery("-" + filter.getFieldName().getName() + ":[\"" + filter.getValue().replace("'", "").replace(":", "\\:") + "\" TO *]");
+						query.addFilterQuery(filter.getFieldName().getName() + ":{* TO \"" + filter.getValue().replace("'", "").replace(":", "\\:") + "\"}");
 						break;
 
 					case GT:
 						// fq comparisons uses 'inclusive' [x TO y] syntax. To get an 'exclusive' gt use 'not lt'.
-						query.addFilterQuery("-" + filter.getFieldName().getName() + ":[* TO \"" + filter.getValue().replace("'", "").replace(":", "\\:") + "\"]");
+						query.addFilterQuery(filter.getFieldName().getName() + ":{\"" + filter.getValue().replace("'", "").replace(":", "\\:") + "\" TO *}");
 						break;
 						
 					case LE:
